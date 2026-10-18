@@ -4,6 +4,8 @@ profiles:
     platforms:
       - platform: arduino:zephyr
     libraries:
+      # Upstream source for this pinned release:
+      # https://github.com/bolderflight/bmi088-arduino/tree/v1.0.1
       - Bolder Flight Systems BMI088 (1.0.1)
 
 default_profile: default

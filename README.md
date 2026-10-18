@@ -1,6 +1,6 @@
 # Bosch Sensortec BMI088 on Arduino UNO Q with ROS 2 Jazzy
 
-**Working BMI088 IMU integration: acceleration, angular velocity and temperature.**
+**ROS 2 Jazzy integration for the Bosch Sensortec BMI088 IMU on Arduino UNO Q, using Arduino App Lab and RouterBridge.** Acceleration, angular velocity and temperature are working on my setup.
 
 This is my personal experiment in bringing the Bosch Sensortec BMI088 into ROS 2 using the Arduino UNO Q and Arduino App Lab. The STM32 reads the sensor, RouterBridge carries the measurements to Linux, and a custom ROS 2 Jazzy Brick publishes standard messages. A Python console and an automatic ROS listener make the whole path visible.
 
@@ -53,7 +53,7 @@ For a tidier build, a ready-made **BMI088 breakout** can replace the shuttle-boa
 
 These links point to maker documentation for **BMI088 modules only**. The alternatives have not been tested with this repository; the demonstrated setup is my shuttle board and adapter. Check current availability with the maker, use the UNO Q's 3.3 V I²C connections, and confirm addresses before using a different module.
 
-### Connections used by this app
+### Arduino UNO Q to BMI088 pinout and I²C connections
 
 Arduino's [UNO Q manual](https://docs.arduino.cc/tutorials/uno-q/user-manual/) identifies the Qwiic bus as `Wire1` and specifies **3.3 V** Qwiic operation.
 
@@ -63,7 +63,7 @@ Arduino's [UNO Q manual](https://docs.arduino.cc/tutorials/uno-q/user-manual/) i
 | Bus clock | 400 kHz |
 | BMI088 accelerometer address | `0x18` |
 | BMI088 gyroscope address | `0x68` |
-| Sensor library | Bolder Flight Systems BMI088 **1.0.1**, unchanged |
+| Sensor library | [Bolder Flight Systems BMI088 **1.0.1**](https://github.com/bolderflight/bmi088-arduino/tree/v1.0.1), unchanged; pinned in [`sketch/sketch.yaml`](sketch/sketch.yaml) |
 | Physical quantities | Acceleration in m/s², angular velocity in rad/s, temperature in °C |
 
 Connect the corresponding 3.3 V supply, ground, SDA and SCL signals using your module's documentation. Check its I²C/SPI selection, address jumpers and pull-ups. If its addresses differ, edit `BMI088_ACCEL_ADDR` and `BMI088_GYRO_ADDR` in [the sketch](sketch/sketch.ino). The pictured adapter is not a universal pinout guide.
@@ -229,12 +229,36 @@ A Docker image extraction error saying `no space left on device` is a separate h
 | [Image notes](docs/images/README.md) | Figure descriptions, editing notes and original-photo links |
 | [Tests](tests/test_runtime.py) | Simulated Bridge, message conversion, temperature timing and reload checks |
 
+## FAQ: BMI088 with ROS 2 and Arduino UNO Q
+
+### How do I connect a BMI088 to ROS 2 Jazzy?
+
+Use the UNO Q STM32 to read the BMI088 over I²C, then pass measurements through RouterBridge to the Linux ROS 2 Brick. The Brick publishes `sensor_msgs/Imu` on `/imu/data_raw` and `sensor_msgs/Temperature` on `/imu/temperature`. Start with the [wiring table](#arduino-uno-q-to-bmi088-pinout-and-i²c-connections) and the [App Lab setup](#run-it-in-arduino-app-lab).
+
+### Which Arduino UNO Q I²C bus does the BMI088 use?
+
+This sketch uses the **3.3 V Qwiic bus, `Wire1`**, with accelerometer address `0x18` and gyroscope address `0x68`. Follow your module's pinout and interface-selection instructions; change the sketch's address constants if needed.
+
+### Does this project use micro-ROS?
+
+It uses **RouterBridge and a ROS 2 Jazzy container on the UNO Q's Linux side**. The STM32 runs the Arduino sketch; there is no micro-ROS client or agent in this implementation.
+
+### Does it support BMP581 or provide IMU orientation?
+
+The working sensor is **BMI088**. BMP581 is a [planned extension](docs/roadmap.md#planned-bmp581). The IMU topic contains acceleration and angular velocity; orientation is marked unavailable. Calibration, sensor fusion and acquisition timestamps remain future work.
+
+### What BMI088 ROS 2 rate has been observed?
+
+The supplied listener screenshot shows approximately **65–68 Hz with a 100 Hz target** in one run. This is an observation from this setup, not a sustained-rate guarantee. See the [actual output and its limitations](#what-the-working-result-looks-like).
+
 ## Improvements and feedback
 
 - **Working now:** BMI088 acceleration, angular velocity and die temperature on Arduino UNO Q, with ROS 2 Jazzy output.
 - **Further experiments:** Bridge throughput, buffered sampling, acquisition timestamps, calibration and diagnostics.
 
 Share your BMI088 module, received rate and use case in the [project issues](https://github.com/mauringo/bosch-sensortec-ros2-unoq/issues). Broader future plans and requests are documented separately in the [roadmap](docs/roadmap.md).
+
+For repository metadata, community links and ready-to-adapt announcement drafts, see the [sharing guide](docs/sharing.md).
 
 ## References and acknowledgements
 
