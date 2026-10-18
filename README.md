@@ -42,15 +42,17 @@ I did not have a fancy ready-to-use sensor module, so I used what I had: a **BMI
 
 *AI-enhanced overview of my adapter and BMI088 shuttle board. [Original photo](docs/images/originals/bmi088-adapter-original.png). Use the original and the module documentation for pin labels and wiring; enhanced lettering may differ.*
 
-For a tidier build, look for a suitable **3.3 V I²C breakout with Qwiic connectors**, such as modules from 7Semi, SparkFun or other suppliers. Choose the exact sensor first: a matching connector does not make different Bosch sensors interchangeable.
+### Online examples of BMI088 modules
 
-| Module example | Why it is relevant | Support in this repository |
+For a tidier build, a ready-made **BMI088 breakout** can replace the shuttle-board-and-adapter arrangement. Here are online examples using the same BMI088 sensor as this project. Check the module's connector and I²C settings: a Grove connector or pin header needs suitable wiring/an adapter to reach the UNO Q's Qwiic bus.
+
+| BMI088 module | Interface / format | What to check for this app |
 | --- | --- | --- |
-| [7Semi BMP581 breakout](https://7semi.com/bmp581-barometric-pressure-altitude-sensor-breakout/) | A BMP581 board with Qwiic connectivity for a cleaner pressure-sensor setup | **Planned**, not tested with this app |
-| [SparkFun BMP581 Qwiic pressure sensor](https://www.sparkfun.com/sparkfun-pressure-sensor-bmp581-qwiic.html) | Another Qwiic BMP581 option for the future pressure-sensor work | **Planned**, not tested with this app |
-| [7Semi BMI270 Nano Qwiic IMU](https://7semi.com/bmi270-nano-6-axis-imu-sensor-board-qwiic/) | An example of the compact Qwiic IMU format I would prefer over loose wiring | **Different sensor; not supported by the BMI088 driver** |
+| [Seeed Studio Grove — 6-Axis Accelerometer & Gyroscope (BMI088)](https://wiki.seeedstudio.com/Grove-6-Axis_Accelerometer%26Gyroscope_BMI088/) | I²C module with a Grove connector | Use appropriate Grove-to-Qwiic wiring/an adapter. Seeed documents default addresses `0x19` / `0x69`; match the sketch's address settings to the module. |
+| [Boardoza BMI088 6-Axis IMU Breakout Board](https://github.com/Boardoza/Boardoza_BMI088_6-Axis_IMU_Breakout_Board) | SPI / I²C breakout with header connections | Its documentation specifies SPI by default and JP1 for I²C selection. JP2 selects `0x19` / `0x69` or `0x18` / `0x68`. Follow its pinout when wiring to Qwiic. |
+| [Simon D. Levy BMI088 I²C breakout](https://github.com/simondlevy/bmi088-i2c-breakout) | Compact I²C breakout, with through-hole and castellated versions | The project links to module listings and hardware files. Check the chosen version's pinout and provide matching power, SDA and SCL wiring. |
 
-These links are examples to explore, not endorsements or claims of compatibility testing. For the current working app, use a **BMI088** board with suitable I²C connections. BMI270, BMI323 and BMP581 need their own sensor drivers.
+These links point to maker documentation for **BMI088 modules only**. The alternatives have not been tested with this repository; the demonstrated setup is my shuttle board and adapter. Check current availability with the maker, use the UNO Q's 3.3 V I²C connections, and confirm addresses before using a different module.
 
 ### Connections used by this app
 
