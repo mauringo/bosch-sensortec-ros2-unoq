@@ -9,12 +9,12 @@ The goal is a project that another hobbyist can understand, reproduce and extend
 > **Personal-project disclaimer:** This is my independent hobby project, developed in a personal capacity. It is not affiliated with, endorsed by, sponsored by or an official project of Bosch Sensortec. The code, documentation and results are my own experiments, not an official Bosch Sensortec integration or support offering. Product names identify the hardware used.
 
 <p align="center">
-  <a href="docs/images/uno-q-bmi088-project-preview.jpg">
-    <img src="docs/images/uno-q-bmi088-project-preview.jpg" width="620" alt="Personal Arduino UNO Q prototype in a red case, with its blue LED matrix and live BMI088 Python readings on the monitor behind it">
+  <a href="docs/images/uno-q-bmi088-project-preview-enhanced.png">
+    <img src="docs/images/uno-q-bmi088-project-preview-enhanced.png" width="620" alt="AI-enhanced illustration of the personal Arduino UNO Q prototype in a red case, with its blue LED matrix and Python output on the monitor behind it">
   </a>
 </p>
 
-*My actual Arduino UNO Q prototype and live BMI088 measurements. The photo is an introduction to the setup; the unaltered ROS log screenshot below is the evidence for the observed delivery rate.*
+*AI-enhanced preview of my Arduino UNO Q prototype. [Original photo](docs/images/originals/project-preview-original.jpeg). For actual measurements and delivery rates, see the unaltered ROS log screenshot below.*
 
 **Which sensor would you like to see next?** [Open a sensor request](https://github.com/mauringo/bosch-sensortec-ros2-unoq/issues/new?template=sensor-request.yml) with the sensor name, module link and what you want to build. BMI088 works today; BMP581 is the next planned addition. Suggestions and reports from other Arduino UNO Q setups are welcome.
 
@@ -35,12 +35,12 @@ The screenshot is a short observation from one hobby setup, not a guarantee of s
 I did not have a fancy ready-to-use sensor module, so I used what I had: a **BMI088 Shuttle Board 3.0 on an adapter board**, connected as a prototype. Yes, the setup is a bit of a wiring mess. It is enough to explore the software path, and it is the hardware behind these results.
 
 <p align="center">
-  <a href="docs/images/bmi088-shuttle-board-adapter.jpg">
-    <img src="docs/images/bmi088-shuttle-board-adapter.jpg" width="640" alt="BMI088 Shuttle Board 3.0 mounted on the green adapter board used for this personal Arduino UNO Q project">
+  <a href="docs/images/bmi088-shuttle-board-adapter-enhanced.png">
+    <img src="docs/images/bmi088-shuttle-board-adapter-enhanced.png" width="640" alt="AI-enhanced overview of the BMI088 Shuttle Board 3.0 and green adapter board used in the personal Arduino UNO Q project">
   </a>
 </p>
 
-*The adapter and BMI088 shuttle board I actually have. Treat this as a hardware-identification photo, not a complete wiring diagram.*
+*AI-enhanced overview of my adapter and BMI088 shuttle board. [Original photo](docs/images/originals/bmi088-adapter-original.png). Use the original and the module documentation for pin labels and wiring; enhanced lettering may differ.*
 
 For a tidier build, look for a suitable **3.3 V I²C breakout with Qwiic connectors**, such as modules from 7Semi, SparkFun or other suppliers. Choose the exact sensor first: a matching connector does not make different Bosch sensors interchangeable.
 
