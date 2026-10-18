@@ -241,3 +241,7 @@ Share your BMI088 module, received rate and use case in the [project issues](htt
 This project builds on my [basic ROS 2 Jazzy on Arduino UNO Q example](https://github.com/mauringo/ROS-2-Jazzy-on-Arduino-UNO-Q-Basic). It uses Arduino RouterBridge, ROS 2 and the [Bolder Flight BMI088 library](https://github.com/bolderflight/bmi088-arduino/tree/v1.0.1).
 
 For the hardware itself, use the primary references: [Arduino UNO Q manual](https://docs.arduino.cc/tutorials/uno-q/user-manual/) and [Bosch Sensortec BMI088](https://www.bosch-sensortec.com/en/products/motion-sensors/imus/bmi088). Their documentation describes the products; this hobby repository describes my integration.
+
+## License
+
+This project is licensed under the [MIT License](LICENSE). Third-party libraries and dependencies retain their respective licenses.
