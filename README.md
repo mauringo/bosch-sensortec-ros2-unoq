@@ -47,7 +47,7 @@ For a tidier build, a ready-made **BMI088 breakout** can replace the shuttle-boa
 
 | BMI088 module | Interface / format | What to check for this app |
 | --- | --- | --- |
-| [Seeed Studio Grove — 6-Axis Accelerometer & Gyroscope (BMI088)](https://wiki.seeedstudio.com/Grove-6-Axis_Accelerometer%26Gyroscope_BMI088/) | I²C module with a Grove connector | Use appropriate Grove-to-Qwiic wiring/an adapter. Seeed documents default addresses `0x19` / `0x69`; match the sketch's address settings to the module. |
+| [Seeed Studio Grove — 6-Axis Accelerometer & Gyroscope (BMI088)](https://www.seeedstudio.com/Grove-6-Axis-Accelerometer-Gyroscope-BMI088.html) | I²C module with a Grove connector | Use appropriate Grove-to-Qwiic wiring/an adapter. Seeed documents default addresses `0x19` / `0x69`; match the sketch's address settings to the module. |
 | [Boardoza BMI088 6-Axis IMU Breakout Board](https://github.com/Boardoza/Boardoza_BMI088_6-Axis_IMU_Breakout_Board) | SPI / I²C breakout with header connections | Its documentation specifies SPI by default and JP1 for I²C selection. JP2 selects `0x19` / `0x69` or `0x18` / `0x68`. Follow its pinout when wiring to Qwiic. |
 | [Simon D. Levy BMI088 I²C breakout](https://github.com/simondlevy/bmi088-i2c-breakout) | Compact I²C breakout, with through-hole and castellated versions | The project links to module listings and hardware files. Check the chosen version's pinout and provide matching power, SDA and SCL wiring. |
 
