@@ -1,0 +1,39 @@
+name: Sensor request
+description: Suggest a sensor for the Arduino UNO Q and ROS 2 hobby project
+title: "Sensor request: "
+body:
+  - type: markdown
+    attributes:
+      value: |
+        BMI088 works today; BMP581 is already planned.
+        This is an independent personal hobby project, not an official Bosch Sensortec integration.
+        Tell me which sensor you would like next and what you want to build.
+  - type: input
+    id: sensor
+    attributes:
+      label: Sensor name
+      description: Exact manufacturer and part number, if known.
+      placeholder: Bosch Sensortec BMP581
+    validations:
+      required: true
+  - type: input
+    id: module
+    attributes:
+      label: Board or module link
+      description: A product page, schematic or datasheet helps identify the interface and wiring.
+      placeholder: https://...
+  - type: textarea
+    id: use_case
+    attributes:
+      label: What would you like to build?
+      description: Describe the measurements or ROS topics you need.
+    validations:
+      required: true
+  - type: dropdown
+    id: hardware
+    attributes:
+      label: Can you test this sensor on an Arduino UNO Q?
+      options:
+        - "Yes, I have the sensor and an UNO Q"
+        - "I have some of the hardware"
+        - "No, this is a suggestion"

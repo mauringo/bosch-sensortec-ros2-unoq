@@ -1,188 +1,243 @@
-# ROS 2 Jazzy + BMI088 on Arduino UNO Q
+# Bosch Sensortec sensors on Arduino UNO Q with ROS 2 Jazzy
 
-The STM32 reads the BMI088 over Qwiic (`Wire1`). The App Lab Python console prints its measurements, while the ROS Brick publishes them and runs a listener in parallel. The built-in matrix shows rounded sensor temperature, for example `25C`.
+**BMI088 IMU: working. BMP581 pressure sensor: planned.**
 
-## Run from App Lab
+This is my personal experiment in bringing Bosch Sensortec sensors into ROS 2 using the Arduino UNO Q and Arduino App Lab. The STM32 reads the sensor, RouterBridge carries the measurements to Linux, and a custom ROS 2 Jazzy Brick publishes standard messages. A Python console and an automatic ROS listener make the whole path visible.
 
-1. Deploy this entire app, including `sketch/`, `python/` and `bricks/`.
-2. Stop the old app and Run/Deploy the updated app so App Lab applies the changed Brick Compose configuration.
-3. Open the Python console for lines beginning `[STM32]`.
-4. Open the ROS Brick/service logs for `[ROS runtime]` and `[ROS listener]`.
+The goal is a project that another hobbyist can understand, reproduce and extend: one line to tune the IMU, readable measurements in the console, temperature on the board's LED matrix, and fewer surprises when deploying changes to a custom Brick.
 
-Illustrative output (these are not hardware test results):
+> **Personal-project disclaimer:** This is my independent hobby project, developed in a personal capacity. It is not affiliated with, endorsed by, sponsored by or an official project of Bosch Sensortec. The code, documentation and results are my own experiments, not an official Bosch Sensortec integration or support offering. Product names identify the hardware used.
 
-```text
-[STM32] Accel (m/s²): X=+0.010 Y=+0.020 Z=+9.810 | Gyro (rad/s): X=+0.0010 Y=+0.0020 Z=+0.0030 | Temperature: 25.50 °C
-[ROS runtime] Source revision a1b2c3d4e5f6; starting publisher + listener
-[ROS listener] Accel=(+0.010, +0.020, +9.810) m/s² | Gyro=(+0.0010, +0.0020, +0.0030) rad/s | T=25.50 °C (age 1.0 s) | received: IMU 98.0 Hz
+<p align="center">
+  <a href="docs/images/uno-q-bmi088-project-preview.jpg">
+    <img src="docs/images/uno-q-bmi088-project-preview.jpg" width="620" alt="Personal Arduino UNO Q prototype in a red case, with its blue LED matrix and live BMI088 Python readings on the monitor behind it">
+  </a>
+</p>
+
+*My actual Arduino UNO Q prototype and live BMI088 measurements. The photo is an introduction to the setup; the unaltered ROS log screenshot below is the evidence for the observed delivery rate.*
+
+**Which sensor would you like to see next?** [Open a sensor request](https://github.com/mauringo/bosch-sensortec-ros2-unoq/issues/new?template=sensor-request.yml) with the sensor name, module link and what you want to build. BMI088 works today; BMP581 is the next planned addition. Suggestions and reports from other Arduino UNO Q setups are welcome.
+
+## What works now, and what comes next
+
+| Sensor / feature | Status | What this repository provides |
+| --- | --- | --- |
+| **Bosch Sensortec BMI088** | **Working on my setup** | Acceleration, angular velocity and sensor die temperature |
+| Arduino UNO Q + Arduino App Lab | Working on my setup | STM32 sketch, Python console and custom ROS 2 Jazzy Brick |
+| ROS IMU delivery | Observed in the supplied logs | Approximately **65–68 Hz** in the shown run, with a 100 Hz target |
+| Temperature | Working | Celsius, published once every **2 seconds**, also shown on the matrix |
+| **Bosch Sensortec BMP581** | **Future support** | Planned pressure and temperature integration; no BMP581 driver or ROS pressure publisher is implemented yet |
+
+The screenshot is a short observation from one hobby setup, not a guarantee of sustained throughput or a hardware maximum. Earlier JSON-based logs showed roughly 32–33 Hz; the later compact-Bridge run shown here is faster, but these were not controlled benchmark runs.
+
+## My hardware: functional, a little messy
+
+I did not have a fancy ready-to-use sensor module, so I used what I had: a **BMI088 Shuttle Board 3.0 on an adapter board**, connected as a prototype. Yes, the setup is a bit of a wiring mess. It is enough to explore the software path, and it is the hardware behind these results.
+
+<p align="center">
+  <a href="docs/images/bmi088-shuttle-board-adapter.jpg">
+    <img src="docs/images/bmi088-shuttle-board-adapter.jpg" width="640" alt="BMI088 Shuttle Board 3.0 mounted on the green adapter board used for this personal Arduino UNO Q project">
+  </a>
+</p>
+
+*The adapter and BMI088 shuttle board I actually have. Treat this as a hardware-identification photo, not a complete wiring diagram.*
+
+For a tidier build, look for a suitable **3.3 V I²C breakout with Qwiic connectors**, such as modules from 7Semi, SparkFun or other suppliers. Choose the exact sensor first: a matching connector does not make different Bosch sensors interchangeable.
+
+| Module example | Why it is relevant | Support in this repository |
+| --- | --- | --- |
+| [7Semi BMP581 breakout](https://7semi.com/bmp581-barometric-pressure-altitude-sensor-breakout/) | A BMP581 board with Qwiic connectivity for a cleaner pressure-sensor setup | **Planned**, not tested with this app |
+| [SparkFun BMP581 Qwiic pressure sensor](https://www.sparkfun.com/sparkfun-pressure-sensor-bmp581-qwiic.html) | Another Qwiic BMP581 option for the future pressure-sensor work | **Planned**, not tested with this app |
+| [7Semi BMI270 Nano Qwiic IMU](https://7semi.com/bmi270-nano-6-axis-imu-sensor-board-qwiic/) | An example of the compact Qwiic IMU format I would prefer over loose wiring | **Different sensor; not supported by the BMI088 driver** |
+
+These links are examples to explore, not endorsements or claims of compatibility testing. For the current working app, use a **BMI088** board with suitable I²C connections. BMI270, BMI323 and BMP581 need their own sensor drivers.
+
+### Connections used by this app
+
+Arduino's [UNO Q manual](https://docs.arduino.cc/tutorials/uno-q/user-manual/) identifies the Qwiic bus as `Wire1` and specifies **3.3 V** Qwiic operation.
+
+| Connection / setting | This project |
+| --- | --- |
+| I²C bus | Qwiic connector, `Wire1` |
+| Bus clock | 400 kHz |
+| BMI088 accelerometer address | `0x18` |
+| BMI088 gyroscope address | `0x68` |
+| Sensor library | Bolder Flight Systems BMI088 **1.0.1**, unchanged |
+| Physical quantities | Acceleration in m/s², angular velocity in rad/s, temperature in °C |
+
+Connect the corresponding 3.3 V supply, ground, SDA and SCL signals using your module's documentation. Check its I²C/SPI selection, address jumpers and pull-ups. If its addresses differ, edit `BMI088_ACCEL_ADDR` and `BMI088_GYRO_ADDR` in [the sketch](sketch/sketch.ino). The pictured adapter is not a universal pinout guide.
+
+## Run it in Arduino App Lab
+
+1. Download or clone this repository and create/open an app for your connected **Arduino UNO Q** in App Lab.
+2. Put the whole project in that app's directory, including `app.yaml`, `sketch/`, `python/`, `bricks/` and `UNO_Q_BMI088_APP.marker`. Keep the folder layout intact.
+3. Connect the BMI088 to the Qwiic I²C bus. The sketch uses `Wire1`, not the UNO-style header bus `Wire`.
+4. In [`sketch/sketch.ino`](sketch/sketch.ino), choose the one-line IMU configuration below.
+5. **Deploy/Run** the app. For an existing installation, Stop first and then Deploy/Run so App Lab applies the current Brick configuration.
+6. Select the **Python** output tab to read the lines printed by [`python/main.py`](python/main.py).
+7. Open the board's Linux shell using the bottom-left terminal button shown below, then paste the listener command.
+8. Check that the ROS logs say `Compact IMU transport enabled; temperature publishes every 2 s`.
+
+The first ROS image build/download needs free storage on the UNO Q. The stale-container workaround described later assumes the container can already start.
+
+### Where to open the console and enter the command
+
+<p align="center">
+  <a href="docs/images/app-lab-open-board-shell.png">
+    <img src="docs/images/app-lab-open-board-shell.png" width="1000" alt="Arduino App Lab Python output, with a callout marking the bottom-left terminal button whose tooltip says Connect to the board's shell">
+  </a>
+</p>
+
+*The main pane is Python application output. The highlighted terminal button opens the board's Linux shell, where you enter Docker commands. Reading Python output and opening a shell are separate actions.*
+
+Once the shell is open, paste this **one line**. It works from `~` or any other folder:
+
+```bash
+find "$HOME/ArduinoApps" -type f -name UNO_Q_BMI088_APP.marker -execdir docker compose -f .cache/app-compose.yaml logs -f --tail=30 ros2 \; -quit
 ```
 
-The Python console requests cached measurements twice per second. The listener runs as a separate ROS process and reports received IMU values/rate once per second. Temperature publishes once every two seconds; its age is shown separately. The listener does not make additional Bridge requests, and missing temperature does not hide working IMU data.
+It finds this app's marker, runs Compose from the correct app folder and follows the already-running ROS publisher/listener logs. If there are multiple copies, it uses the first match. If nothing is found, check that the marker was deployed under `~/ArduinoApps`.
 
-The STM32 exposes request/response RPC functions. The fast ROS path uses `read_imu_fast`; the console switches to `read_imu_cached` after checking the sketch's capabilities. The older `read_imu` JSON endpoint remains available for compatibility.
+**Why not just run Compose from `~`?** The relative path `.cache/app-compose.yaml` belongs to the deployed app folder. From the home directory it points to a different, usually missing file. The marker command handles that working-directory detail for you.
 
-## Faster Bridge communication
+To start an additional listener, run this **from the deployed app directory**:
 
-The BMI088 library is unchanged. The optimization is how readings travel over RouterBridge:
+```bash
+docker compose -f .cache/app-compose.yaml exec ros2 bash /app/check_ros.sh
+```
 
-- The IMU response is a native MessagePack array: `[ready, target_hz, ax, ay, az, gx, gy, gz]`. It avoids building a JSON string on the STM32 and parsing JSON for every ROS sample. Library-provided physical units and axis signs are preserved.
-- Temperature has its own small RPC and ROS timer, once every two seconds. It is omitted from high-rate IMU packets.
-- The console uses a compact cached response, adding temperature as a ninth field. When ROS readings are fresh, console requests do not trigger extra sensor reads. Without ROS, the console can still refresh the sensor.
-- ROS reuses its message objects. The matrix skips redraws when its displayed value has not changed. Serial measurement output is suppressed at targets of 100 Hz or higher.
-- Configuration is fetched once per connection/recovery attempt. It is not requested on each IMU poll. Python can still use the older JSON transport if the new sketch has not been deployed yet.
+Press Ctrl+C to stop following logs or stop the extra listener. The application and its automatic listener keep running.
 
-Deploy **both sketch and Python/Brick files** to enable compact transport. Look for `Compact IMU transport enabled` in the ROS logs. No new packages or Docker image rebuild are needed for this change after the existing source mount is installed.
+## Tune the BMI088 with one line
 
-Temperature shown in the console and matrix is a two-second cache, and `/imu/temperature` publishes at 0.5 Hz. The unchanged BMI088 library still reads temperature internally as part of `accel.readSensor()`; this change reduces Bridge traffic and ROS work rather than modifying that library or bypassing it. RouterBridge still makes one request/response round trip per IMU sample; measured board throughput must be checked after deployment.
-
-## Tune everything with one sketch line
-
-Edit this line near the top of `sketch/sketch.ino`, then Deploy:
+Edit this near the top of [`sketch/sketch.ino`](sketch/sketch.ino), then Deploy:
 
 ```cpp
 constexpr ImuSettings IMU = {100, 6, 500, Filter::NORMAL};
 //                          Hz   ±g  ±°/s  filtering
 ```
 
-| Setting | Allowed values |
+| Setting | Choices |
 | --- | --- |
-| Target ROS polling/publishing rate | Integer 1–1600 Hz |
-| Accelerometer range | ±3, ±6, ±12 or ±24 g |
-| Gyroscope range | ±125, ±250, ±500, ±1000 or ±2000 °/s |
-| Filtering | `Filter::WIDE`, `Filter::NORMAL`, `Filter::SMOOTH` |
+| Requested IMU / ROS rate | Integer **1–1600 Hz**; achievable rate depends on the whole system |
+| Accelerometer range | ±3, ±6, ±12, ±24 g |
+| Gyroscope range | ±125, ±250, ±500, ±1000, ±2000 °/s |
+| Filter profile | `Filter::WIDE`, `Filter::NORMAL`, `Filter::SMOOTH` |
 
-For example, `{400, 12, 1000, Filter::WIDE}` requests 400 Hz with wider measurement ranges and filtering bandwidth. Start with the default, then increase the first number and watch the listener's received Hz. `WIDE` passes faster motion and more noise; `SMOOTH` selects narrower available filtering. The gyro has fewer bandwidth choices: at 400 Hz its bandwidth is 47 Hz for all three filters, and at 1000 Hz it is 116 Hz for all three. These are convenient profiles over the pinned library's supported settings, not arbitrary filter cutoff values.
+For example, `{200, 12, 1000, Filter::WIDE}` requests 200 Hz and wider motion ranges. The sketch picks supported sensor output rates and bandwidths; Python prints those effective settings, and ROS follows the requested rate automatically.
 
-The sketch automatically selects hardware output data rates at least as high as the requested rate: accel 25/50/100/200/400/800/1600 Hz, gyro 100/200/400/1000/2000 Hz. Python prints the effective settings, including both bandwidths. ROS reads `rate_hz` from each sample and adjusts its timer, including after a sketch restart. No Compose or Python rate edit is required. Invalid ranges and rates are rejected when compiling the sketch.
+Start with the default and watch **received IMU Hz**, rather than assuming that raising the target increases throughput. Smaller ranges give more resolution when the motion does not clip. Wider filtering passes more rapid motion and more noise. The available gyro bandwidths depend on its output rate, so some filter profiles map to the same hardware setting. See the [technical guide](docs/technical-guide.md#tune-everything-with-one-sketch-line) for the detailed mapping and limitations.
 
-The first number is a **requested Bridge/ROS rate**, not a fixed STM32 acquisition schedule or a guarantee of fresh sensor data on every poll. Hardware ODR and polling are asynchronous. Measurements are still read on request, without buffering or data-ready interrupts. At high targets, the publisher warns when an RPC exceeds the requested period; the listener shows the actual delivery rate. Temperature is published independently every two seconds.
+## What the working result looks like
 
-At 100 Hz and above, verbose Serial measurement printing is skipped to reduce overhead. Serial printing uses cached samples at lower targets. The Python console and matrix continue working, and the STM32's periodic I²C health check remains active. The practical limit depends on I²C, RPC transport and board load; setting 1600 does not establish that the system can sustain 1600 Hz. Larger ranges capture stronger motion but reduce resolution; use the smallest range that does not clip your motion.
+<p align="center">
+  <a href="docs/images/ros2-bmi088-listener-results.png">
+    <img src="docs/images/ros2-bmi088-listener-results.png" width="1100" alt="Actual ROS 2 BMI088 listener output with approximately 65 to 68 received IMU messages per second, temperature around 27 degrees Celsius, and Bridge timing warnings against a 100 Hz target">
+  </a>
+</p>
 
-### Check the listener from the UNO Q terminal
+*Actual supplied output: roughly 65–68 Hz received IMU data, temperature around 27 °C and a 100 Hz target. The warnings are retained: they show where the requested timing is tighter than a measured Bridge request.*
 
-Deploy `UNO_Q_BMI088_APP.marker` with the rest of the app, keeping it beside `app.yaml`. Then open a terminal on the UNO Q and run this single line from any folder, including `~`:
+A listener line tells you:
 
-```bash
-find "$HOME/ArduinoApps" -type f -name UNO_Q_BMI088_APP.marker -execdir docker compose -f .cache/app-compose.yaml logs -f --tail=30 ros2 \; -quit
+- **Accel:** X/Y/Z acceleration in m/s². Gravity is present; approximately −9.8 on Z is consistent with the orientation shown in these logs.
+- **Gyro:** X/Y/Z angular velocity in rad/s.
+- **T:** BMI088 sensor die temperature in **degrees Celsius**, not a calibrated ambient thermometer.
+- **Age:** time since the last ROS temperature message arrived. Temperature is intentionally sent every two seconds; the STM32 cache can already be up to two seconds old before that message arrives.
+- **Received IMU Hz:** messages actually received by this subscriber. It is not the sensor's advertised hardware rate.
+- **Bridge warning:** an RPC took longer than the period requested by the configuration. It is a timing limit to investigate, not a temperature error.
+
+## What the code does, from start to finish
+
+```mermaid
+flowchart LR
+    Sensor["BMI088"] -->|"I²C / Wire1"| MCU["UNO Q STM32 sketch"]
+    MCU -->|"Native MessagePack / RouterBridge"| ROS["ROS 2 Jazzy publisher"]
+    MCU -->|"Cached readings"| Console["App Lab Python console"]
+    MCU --> Matrix["LED matrix: rounded °C"]
+    ROS --> IMU["/imu/data_raw"]
+    ROS --> Temp["/imu/temperature: every 2 s"]
+    IMU --> Listener["Automatic ROS listener"]
+    Temp --> Listener
 ```
 
-This finds the marker, runs Compose from its directory and follows the already-running listener's logs. Folder names containing spaces are supported. If multiple copies exist, it uses the first match. If nothing happens, check that the marker was deployed under `~/ArduinoApps`.
+1. **Configure and initialize.** The sketch starts I²C and the unchanged BMI088 library, applies your ranges/filter profile and retries initialization if the sensor is unavailable.
+2. **Read the sensor.** A fast IMU request calls the library's accelerometer and gyro readers. The library supplies m/s² and rad/s with its existing axis conventions.
+3. **Cross the Bridge efficiently.** `read_imu_fast` returns eight numeric values: readiness, target rate and six measurements. MessagePack carries the array directly, avoiding a JSON string and float-to-text conversion on every sample.
+4. **Publish ROS messages.** `ros_sensor.py` validates those measurements, follows the sketch's rate and publishes `sensor_msgs/Imu` on `/imu/data_raw`. It reuses message objects to reduce repeated allocations.
+5. **Handle slow temperature separately.** A separate timer requests the cached temperature and publishes `sensor_msgs/Temperature` on `/imu/temperature` every two seconds. The console and matrix use the same slow cache. The unchanged library still reads temperature internally during its normal accelerometer read.
+6. **Show the values.** `main.py` prints cached measurements twice per second. The matrix shows rounded Celsius values, such as `27C`, without a blocking text animation.
+7. **Verify delivery.** `ros_listener.py` is a separate process that subscribes to both ROS topics. It reports the received IMU rate and the latest temperature's age; it does not make extra Bridge calls.
+8. **Recover and reload.** `run.py` starts the publisher/listener together, restarts them after a process failure and reloads deployed Python source. Docker provides container-level recovery.
 
-The relative path `.cache/app-compose.yaml` alone only works from the deployed app directory. Running Compose directly from `~` searches `/home/arduino/.cache/app-compose.yaml`, causing the earlier "no such file or directory" error. The marker command handles the working directory automatically.
+The result is a **working BMI088-to-ROS data path with visible diagnostics**. It is not yet an orientation estimator, calibrated navigation stack or BMP581 pressure driver. Orientation is marked unavailable in the IMU message; timestamps use Linux receipt time, not sensor acquisition time.
 
-From that app directory, start an additional live listener:
+## The stale custom-Brick container problem—and the workaround
 
-```bash
-docker compose -f .cache/app-compose.yaml exec ros2 bash /app/check_ros.sh
-```
+### What went wrong
 
-This lists the ROS topics, then prints received IMU values, temperature and measured rates. To follow the automatic listener already running in the Brick instead:
+The original Dockerfile copied the Brick's Python files into the image. On this setup, deploying edited local Brick code could leave the existing container/image running the old files. Restarting that container did not replace the code baked into its image.
 
-```bash
-docker compose -f .cache/app-compose.yaml logs -f --tail=30 ros2
-```
+The workaround changes how this project loads its source. It does **not** patch Arduino App Lab or claim to fix the upstream deployment behavior.
 
-`python/main.py` prints both commands at startup. Press Ctrl+C to stop either terminal check; the app and its automatic listener continue running.
+### The tricks used here
 
-## Fixing the stale container after Deploy
+| Change | What it solves | Where to look |
+| --- | --- | --- |
+| Read-only `./app:/app:ro` bind mount | The ROS container reads the deployed Brick source instead of relying only on the old image copy | [Brick Compose](bricks/ros2_jazzy/brick_compose.yaml) |
+| Explicit Compose command for `/app/run.py` | Uses the current startup script even if an older cached image has a different default command | [Brick Compose](bricks/ros2_jazzy/brick_compose.yaml) |
+| Small source-reload supervisor | Hashes Python files every 0.5 s, allows a 1 s upload settling period, then restarts both ROS processes when source changes | [`run.py`](bricks/ros2_jazzy/app/run.py) |
+| Source revision in logs | Lets you see that deployed Python content changed | `[ROS runtime] Source revision ...` |
+| `restart: unless-stopped` | Restarts a failed container; this is recovery, not a source update mechanism | [Brick Compose](bricks/ros2_jazzy/brick_compose.yaml) |
+| No reliance on Compose Watch for Python edits | Ordinary App Lab Deploy may not launch `docker compose watch`; the running supervisor checks its mounted source itself | [Technical guide](docs/technical-guide.md#fixing-the-stale-container-after-deploy) |
 
-Previously the Dockerfile copied Python into the image. If App Lab reused that image, Deploy could run old code until a manual rebuild.
+### What still requires what
 
-The updated Brick uses:
+| What you edit | Required action |
+| --- | --- |
+| `sketch/sketch.ino` | Deploy/flash the sketch so the STM32 runs the new configuration/code |
+| `python/main.py` | Deploy/restart the normal App Lab Python app |
+| Python under `bricks/ros2_jazzy/app/` | Deploy the files; once the mount is installed, the supervisor reloads changed Python source |
+| Brick mounts, environment or startup command | Stop and Deploy/Run so App Lab recreates/applies the container configuration |
+| Dockerfile, requirements or base image | Rebuild the ROS image; mounted source does not install dependencies |
 
-- A read-only source mount: `./app:/app:ro`, relative to the Brick Compose file.
-- A Compose startup command that launches `/app/run.py`, even with a cached image.
-- A small supervisor that runs the publisher and listener in parallel. It hashes Python source every 0.5 seconds and reloads both processes when deployed files change.
-- A source revision in startup logs, allowing you to see whether the deployed code changed.
-- Automatic process recovery and Docker's `unless-stopped` restart policy.
+**One-time setup matters:** an already-running old container cannot add a new mount or startup command to itself. Stop the app and Deploy/Run once to install this configuration. Afterward, ordinary Brick Python edits should no longer need the manual rebuild workaround. Behavior still depends on the installed App Lab version and how files are deployed.
 
-After the new mount and command have been applied once, editing the Brick's Python files and pressing Deploy should use the new source without rebuilding the image. There is no dependency on `docker compose watch`, which ordinary App Lab Run may not start. Reloads briefly interrupt publishing and allow a one-second upload settling period.
-
-**First-deployment limitation:** an already running old container cannot give itself a new mount or startup command. App Lab must recreate it once with this Compose configuration. Try Stop, then Deploy/Run. This setup still needs verification on your installed App Lab version and board.
-
-Dockerfile, base-image and dependency changes still require an image rebuild. A cached image must already contain ROS Jazzy, `rclpy`, `sensor_msgs` and MessagePack; the original ros-base image normally includes the ROS interfaces, and the updated Dockerfile explicitly installs them.
-
-If App Lab still fails to recreate the container initially, the existing one-time host-side workaround remains:
+If App Lab still leaves the old container in place, run the original fallback **from the app directory on the UNO Q**:
 
 ```bash
 docker compose -f .cache/app-compose.yaml up -d --build --force-recreate ros2
 ```
 
-Run that from the app directory on the UNO Q. It should no longer be necessary for ordinary Python source edits after the mount is installed.
+This rebuilds/recreates only the `ros2` service. Keep it for the initial transition or actual dependency/image changes, rather than treating it as part of every Python edit.
 
-`python/main.py` cannot rebuild a Docker service through the normal RouterBridge API. This app does not expose the host Docker daemon to Python. A `no space left on device` image extraction error is a separate host storage problem and occurs before the ROS runtime starts.
+A Docker image extraction error saying `no space left on device` is a separate host-storage problem. Neither `main.py` nor a Python process inside a container can repair an image that failed to build or start.
 
-## Data flow
+## Find your way around the repository
 
-```text
-BMI088 -> STM32 / Wire1 -> RouterBridge numeric packets
-                           |                 |
-                           v                 v
-                    python/main.py     ROS publisher
-                    readable console         |
-                                      /imu/data_raw
-                                      /imu/temperature
-                                             |
-                                       ROS listener
-                                       values + rates
-
-STM32 -> built-in LED matrix: rounded temperature in °C
-```
-
-| Topic | Message | Target rate |
-| --- | --- | --- |
-| `/imu/data_raw` | `sensor_msgs/msg/Imu` | Sketch setting (default 100 Hz) |
-| `/imu/temperature` | `sensor_msgs/msg/Temperature` | 0.5 Hz (every 2 seconds) |
-
-100 Hz is a target, not a guaranteed rate. RouterBridge/I²C latency, console requests and system load affect throughput. Use the automatic listener's measured rates to assess the board.
-
-Measurements use the Bolder Flight library's acceleration in m/s² and angular velocity in rad/s. No raw-register scaling is applied. `imu_link` represents the sensor's axes; there is no mounting transform or calibration. Orientation is unavailable (`orientation_covariance[0] = -1`). Other covariances are zero, meaning unknown. Topics are timestamped separately on Linux receipt; there is no hardware acquisition timestamp. The received temperature comes from the STM32's cache and can already be up to two seconds old; the listener's displayed age measures time since the last ROS temperature message arrived.
-
-The matrix uses a small built-in font with no extra graphics library. It refreshes without scrolling delays, shows whole degrees plus C, scrolls wider values and shows `--` while the sensor is unavailable. Console and ROS temperature retain decimals. This is BMI088 die temperature, not a calibrated ambient thermometer.
-
-## Files to edit
-
-| File | Purpose |
+| File | Role |
 | --- | --- |
-| `python/main.py` | Read, validate and print STM32 values in simple functions |
-| `sketch/sketch.ino` | BMI088, Bridge services, matrix display and initialization retry |
-| `bricks/ros2_jazzy/app/ros_sensor.py` | Validate samples and publish ROS messages |
-| `bricks/ros2_jazzy/app/ros_listener.py` | Subscribe and show received measurements/rates |
-| `bricks/ros2_jazzy/app/run.py` | Start both processes, recover crashes, reload source |
-| `bricks/ros2_jazzy/app/app_utils/bridge.py` | Bounded MessagePack RPC and reconnect-on-failure |
-| `bricks/ros2_jazzy/brick_compose.yaml` | Source/socket mounts, startup and ROS configuration |
-| `bricks/ros2_jazzy/Dockerfile` | ROS image and installed dependencies |
+| [`sketch/sketch.ino`](sketch/sketch.ino) | One-line configuration, BMI088 reads, Bridge endpoints, matrix and initialization retry |
+| [`python/main.py`](python/main.py) | Human-readable console, active configuration and the one-line listener command |
+| [`ros_sensor.py`](bricks/ros2_jazzy/app/ros_sensor.py) | Compact transport, standard ROS messages and the separate temperature timer |
+| [`ros_listener.py`](bricks/ros2_jazzy/app/ros_listener.py) | Independent subscriber that shows values, received Hz and temperature age |
+| [`run.py`](bricks/ros2_jazzy/app/run.py) | Parallel process startup, crash recovery and source reload |
+| [`bridge.py`](bricks/ros2_jazzy/app/app_utils/bridge.py) | Persistent MessagePack RPC socket, bounded waits and reconnect-on-failure |
+| [`brick_compose.yaml`](bricks/ros2_jazzy/brick_compose.yaml) | Container build, source/socket mounts, ROS environment and restart policy |
+| [Technical guide](docs/technical-guide.md) | Protocol, ROS metadata, tuning, manual diagnostics and deployment details |
+| [Image notes](docs/images/README.md) | Figure descriptions, editing notes and original-photo links |
+| [Tests](tests/test_runtime.py) | Simulated Bridge, message conversion, temperature timing and reload checks |
 
-Change rate, sensor ranges and filtering in the sketch's `IMU` line. The old `IMU_PUBLISH_HZ` environment variable is no longer used. Change `IMU_FRAME_ID` or `ROS_DOMAIN_ID` in the Compose environment, then Stop and Deploy/Run to apply those configuration changes. External subscribers must use the same ROS domain and compatible sensor-data QoS (best effort).
+## Roadmap and sensor requests
 
-The old `read_a0` RPC remains available for compatibility. This version publishes the BMI088 topics instead of `/analog_sensor`.
+- **Working now:** BMI088 acceleration, angular velocity and die temperature on Arduino UNO Q, with ROS 2 Jazzy output.
+- **Next planned sensor:** **Bosch Sensortec BMP581**, for barometric pressure and temperature. Support will be added in a future update; it is not present in this release and no delivery date is promised.
+- **Further experiments:** Bridge throughput, buffered sampling, acquisition timestamps, calibration and diagnostics.
 
-## Recovery and diagnostics
+**What would you like connected next?** [Request a sensor](https://github.com/mauringo/bosch-sensortec-ros2-unoq/issues/new?template=sensor-request.yml), share the board/module you have, and describe the ROS data you need. If you can test the hardware, say so—that helps turn an idea into a reproducible example.
 
-- STM32 initialization retries every five seconds while unavailable. A periodic I²C address check detects disconnected devices and requests reinitialization. The unchanged BMI088 1.0.1 `readSensor()` returns void; this is an address-level health check, not a guarantee that every sample is valid.
-- The ROS Bridge has a 0.5-second RPC timeout, closes failed connections and reconnects on the next attempt. The publisher waits two seconds after an error, with one warning per failed attempt.
-- If either ROS process exits, the supervisor stops its sibling and restarts both after two seconds.
-- Container restarts recover runtime failures; they cannot fix a missing image, dependency or bad source.
-- `[STM32]` output proves the RPC path works. `[ROS listener]` output proves messages arrived at a subscriber. Neither alone guarantees calibration or a stable 100 Hz.
+## References and acknowledgements
 
-Optional terminal checks inside the ROS container:
+This project builds on my [basic ROS 2 Jazzy on Arduino UNO Q example](https://github.com/mauringo/ROS-2-Jazzy-on-Arduino-UNO-Q-Basic). It uses Arduino RouterBridge, ROS 2 and the [Bolder Flight BMI088 library](https://github.com/bolderflight/bmi088-arduino/tree/v1.0.1).
 
-```bash
-source /opt/ros/jazzy/setup.bash
-ros2 topic list
-ros2 topic echo /imu/data_raw --qos-reliability best_effort
-ros2 topic echo /imu/temperature --qos-reliability best_effort
-ros2 topic hz /imu/data_raw
-/app/check_ros.sh
-```
-
-No board or ROS installation is available in the development workspace. Local tests exercise RPC framing/reconnection, message conversion, sketch-driven ROS rate changes and source reload with simulated peers. A host C++ check uses the pinned BMI088 declarations and Arduino stubs to check syntax and six configuration profiles. Actual board compilation, register behavior, matrix output and achievable rates must be verified on the UNO Q.
-
-## API references
-
-- [Arduino Python Bridge API](https://github.com/arduino/app-bricks-py/blob/main/src/arduino/app_utils/bridge.py)
-- [UNO Q matrix implementation](https://github.com/arduino/ArduinoCore-zephyr/blob/main/libraries/Arduino_LED_Matrix/src/Arduino_LED_Matrix.h)
-- [Pinned BMI088 v1.0.1 header](https://github.com/bolderflight/bmi088-arduino/blob/v1.0.1/src/BMI088.h)
-- [ROS Jazzy timer period API](https://github.com/ros2/rclpy/blob/jazzy/rclpy/rclpy/timer.py)
-- [Arduino MessagePack native array support](https://github.com/hideakitai/MsgPack/blob/master/MsgPack/Packer.h)
+For the hardware itself, use the primary references: [Arduino UNO Q manual](https://docs.arduino.cc/tutorials/uno-q/user-manual/), [Bosch Sensortec BMI088](https://www.bosch-sensortec.com/en/products/motion-sensors/imus/bmi088), and [Bosch Sensortec BMP581](https://www.bosch-sensortec.com/en/products/environmental-sensors/pressure-sensors/bmp581). Their documentation describes the products; this hobby repository describes my integration.

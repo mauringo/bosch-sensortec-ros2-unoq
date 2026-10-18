@@ -1,5 +1,5 @@
 name: ROS2_JAZZY_BMI088_UNOQ
-description: "BMI088 console, ROS 2 IMU publisher, automatic listener and matrix temperature"
+description: "Personal Arduino UNO Q + Bosch Sensortec BMI088 project with ROS 2 Jazzy; BMP581 support planned"
 ports: []
 bricks:
 - ros2_jazzy: {}

@@ -1,0 +1,16 @@
+[
+  {
+    "photo": "adapter",
+    "original": "originals/bmi088-adapter-original.png",
+    "tool": "built-in imagegen",
+    "used_in_published_figures": false,
+    "prompt": "Edit target: the supplied real photograph of the BMI088 Shuttle Board 3.0 on its green adapter PCB. Create a clean landscape documentation photograph by tightly cropping the excess empty tabletop around the entire adapter board, with a modest even margin. Apply only light photographic exposure, white balance, contrast and clarity enhancement. Preserve the exact physical PCB, all components, holes, pins, jumpers, traces, orientation and every existing printed label. Do not add, remove, rearrange or reconstruct any hardware; do not rewrite or invent silkscreen labels. Keep the real tabletop texture. No new graphics, borders, arrows, text, logos or watermark. This is a personal electronics prototype, not a product render."
+  },
+  {
+    "photo": "preview",
+    "original": "originals/project-preview-original.jpeg",
+    "tool": "built-in imagegen",
+    "used_in_published_figures": false,
+    "prompt": "Edit target: the supplied real photograph of an Arduino UNO Q in its red case held in front of a monitor with Python sensor output. Light documentary photo enhancement for a GitHub project introduction. Crop away only the large empty grey monitor area at the top, keeping the Python tab, monitor output, complete visible red case, hand, blue LED matrix and connected cables as in the original. Improve exposure and white balance gently so the board is visible without making the screen overbright. Preserve the real hardware, hand, wiring and setting. Do not invent temperature digits on the LED matrix. Do not change, replace or invent any screen text, measured values or UI elements. Do not add components, drawings, logos, captions, borders or watermark. Preserve this as an authentic hobby-prototype photograph."
+  }
+]
