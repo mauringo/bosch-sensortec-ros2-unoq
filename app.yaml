@@ -1,5 +1,5 @@
 name: ROS2_JAZZY_BMI088_UNOQ
-description: "Personal Arduino UNO Q + Bosch Sensortec BMI088 project with ROS 2 Jazzy; BMP581 support planned"
+description: "Personal Arduino UNO Q + Bosch Sensortec BMI088 project with ROS 2 Jazzy"
 ports: []
 bricks:
 - ros2_jazzy: {}

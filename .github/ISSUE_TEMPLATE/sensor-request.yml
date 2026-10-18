@@ -5,7 +5,7 @@ body:
   - type: markdown
     attributes:
       value: |
-        BMI088 works today; BMP581 is already planned.
+        The current working implementation supports BMI088. Future plans are documented in docs/roadmap.md.
         This is an independent personal hobby project, not an official Bosch Sensortec integration.
         Tell me which sensor you would like next and what you want to build.
   - type: input
@@ -13,7 +13,7 @@ body:
     attributes:
       label: Sensor name
       description: Exact manufacturer and part number, if known.
-      placeholder: Bosch Sensortec BMP581
+      placeholder: Manufacturer and exact sensor part number
     validations:
       required: true
   - type: input

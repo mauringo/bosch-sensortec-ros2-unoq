@@ -1,8 +1,8 @@
-# Bosch Sensortec sensors on Arduino UNO Q with ROS 2 Jazzy
+# Bosch Sensortec BMI088 on Arduino UNO Q with ROS 2 Jazzy
 
-**BMI088 IMU: working. BMP581 pressure sensor: planned.**
+**Working BMI088 IMU integration: acceleration, angular velocity and temperature.**
 
-This is my personal experiment in bringing Bosch Sensortec sensors into ROS 2 using the Arduino UNO Q and Arduino App Lab. The STM32 reads the sensor, RouterBridge carries the measurements to Linux, and a custom ROS 2 Jazzy Brick publishes standard messages. A Python console and an automatic ROS listener make the whole path visible.
+This is my personal experiment in bringing the Bosch Sensortec BMI088 into ROS 2 using the Arduino UNO Q and Arduino App Lab. The STM32 reads the sensor, RouterBridge carries the measurements to Linux, and a custom ROS 2 Jazzy Brick publishes standard messages. A Python console and an automatic ROS listener make the whole path visible.
 
 The goal is a project that another hobbyist can understand, reproduce and extend: one line to tune the IMU, readable measurements in the console, temperature on the board's LED matrix, and fewer surprises when deploying changes to a custom Brick.
 
@@ -16,9 +16,9 @@ The goal is a project that another hobbyist can understand, reproduce and extend
 
 *AI-enhanced preview of my Arduino UNO Q prototype. [Original photo](docs/images/originals/project-preview-original.jpeg). For actual measurements and delivery rates, see the unaltered ROS log screenshot below.*
 
-**Which sensor would you like to see next?** [Open a sensor request](https://github.com/mauringo/bosch-sensortec-ros2-unoq/issues/new?template=sensor-request.yml) with the sensor name, module link and what you want to build. BMI088 works today; BMP581 is the next planned addition. Suggestions and reports from other Arduino UNO Q setups are welcome.
+**Using a BMI088 module with Arduino UNO Q?** Share your module, wiring and received ROS rate in the [project issues](https://github.com/mauringo/bosch-sensortec-ros2-unoq/issues). Reports from other setups will help improve this example.
 
-## What works now, and what comes next
+## What works now
 
 | Sensor / feature | Status | What this repository provides |
 | --- | --- | --- |
@@ -26,7 +26,6 @@ The goal is a project that another hobbyist can understand, reproduce and extend
 | Arduino UNO Q + Arduino App Lab | Working on my setup | STM32 sketch, Python console and custom ROS 2 Jazzy Brick |
 | ROS IMU delivery | Observed in the supplied logs | Approximately **65–68 Hz** in the shown run, with a 100 Hz target |
 | Temperature | Working | Celsius, published once every **2 seconds**, also shown on the matrix |
-| **Bosch Sensortec BMP581** | **Future support** | Planned pressure and temperature integration; no BMP581 driver or ROS pressure publisher is implemented yet |
 
 The screenshot is a short observation from one hobby setup, not a guarantee of sustained throughput or a hardware maximum. Earlier JSON-based logs showed roughly 32–33 Hz; the later compact-Bridge run shown here is faster, but these were not controlled benchmark runs.
 
@@ -172,7 +171,7 @@ flowchart LR
 7. **Verify delivery.** `ros_listener.py` is a separate process that subscribes to both ROS topics. It reports the received IMU rate and the latest temperature's age; it does not make extra Bridge calls.
 8. **Recover and reload.** `run.py` starts the publisher/listener together, restarts them after a process failure and reloads deployed Python source. Docker provides container-level recovery.
 
-The result is a **working BMI088-to-ROS data path with visible diagnostics**. It is not yet an orientation estimator, calibrated navigation stack or BMP581 pressure driver. Orientation is marked unavailable in the IMU message; timestamps use Linux receipt time, not sensor acquisition time.
+The result is a **working BMI088-to-ROS data path with visible diagnostics**. It is not yet an orientation estimator or calibrated navigation stack. Orientation is marked unavailable in the IMU message; timestamps use Linux receipt time, not sensor acquisition time.
 
 ## The stale custom-Brick container problem—and the workaround
 
@@ -230,16 +229,15 @@ A Docker image extraction error saying `no space left on device` is a separate h
 | [Image notes](docs/images/README.md) | Figure descriptions, editing notes and original-photo links |
 | [Tests](tests/test_runtime.py) | Simulated Bridge, message conversion, temperature timing and reload checks |
 
-## Roadmap and sensor requests
+## Improvements and feedback
 
 - **Working now:** BMI088 acceleration, angular velocity and die temperature on Arduino UNO Q, with ROS 2 Jazzy output.
-- **Next planned sensor:** **Bosch Sensortec BMP581**, for barometric pressure and temperature. Support will be added in a future update; it is not present in this release and no delivery date is promised.
 - **Further experiments:** Bridge throughput, buffered sampling, acquisition timestamps, calibration and diagnostics.
 
-**What would you like connected next?** [Request a sensor](https://github.com/mauringo/bosch-sensortec-ros2-unoq/issues/new?template=sensor-request.yml), share the board/module you have, and describe the ROS data you need. If you can test the hardware, say so—that helps turn an idea into a reproducible example.
+Share your BMI088 module, received rate and use case in the [project issues](https://github.com/mauringo/bosch-sensortec-ros2-unoq/issues). Broader future plans and requests are documented separately in the [roadmap](docs/roadmap.md).
 
 ## References and acknowledgements
 
 This project builds on my [basic ROS 2 Jazzy on Arduino UNO Q example](https://github.com/mauringo/ROS-2-Jazzy-on-Arduino-UNO-Q-Basic). It uses Arduino RouterBridge, ROS 2 and the [Bolder Flight BMI088 library](https://github.com/bolderflight/bmi088-arduino/tree/v1.0.1).
 
-For the hardware itself, use the primary references: [Arduino UNO Q manual](https://docs.arduino.cc/tutorials/uno-q/user-manual/), [Bosch Sensortec BMI088](https://www.bosch-sensortec.com/en/products/motion-sensors/imus/bmi088), and [Bosch Sensortec BMP581](https://www.bosch-sensortec.com/en/products/environmental-sensors/pressure-sensors/bmp581). Their documentation describes the products; this hobby repository describes my integration.
+For the hardware itself, use the primary references: [Arduino UNO Q manual](https://docs.arduino.cc/tutorials/uno-q/user-manual/) and [Bosch Sensortec BMI088](https://www.bosch-sensortec.com/en/products/motion-sensors/imus/bmi088). Their documentation describes the products; this hobby repository describes my integration.
