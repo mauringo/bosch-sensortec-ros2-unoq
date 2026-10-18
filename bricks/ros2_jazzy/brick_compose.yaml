@@ -1,0 +1,36 @@
+services:
+  ros2:
+    build:
+      context: .
+
+    develop:
+      watch:
+        - action: rebuild
+          path: brick_compose.yaml
+
+        - action: rebuild
+          path: Dockerfile
+
+        - action: rebuild
+          path: requirements.txt
+
+        - action: restart
+          path: __init__.py
+
+    network_mode: host
+
+    # Override even an older cached image's CMD. The mounted source is current.
+    command: ["/bin/bash", "-c", "source /opt/ros/jazzy/setup.bash && exec python3 -u /app/run.py"]
+
+    volumes:
+      - /var/run/arduino-router.sock:/var/run/arduino-router.sock
+      - ./app:/app:ro
+
+    environment:
+      ROS_DOMAIN_ID: "0"
+      PYTHONUNBUFFERED: "1"
+      PYTHONDONTWRITEBYTECODE: "1"
+      IMU_FRAME_ID: "imu_link"
+
+    restart: unless-stopped
+    stop_grace_period: 10s

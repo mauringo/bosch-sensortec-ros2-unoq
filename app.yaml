@@ -1,0 +1,6 @@
+name: ROS2_JAZZY_BMI088_UNOQ
+description: "BMI088 console, ROS 2 IMU publisher, automatic listener and matrix temperature"
+ports: []
+bricks:
+- ros2_jazzy: {}
+icon: 😀

@@ -1,0 +1,9 @@
+profiles:
+  default:
+    fqbn: 
+    platforms:
+      - platform: arduino:zephyr
+    libraries:
+      - Bolder Flight Systems BMI088 (1.0.1)
+
+default_profile: default
