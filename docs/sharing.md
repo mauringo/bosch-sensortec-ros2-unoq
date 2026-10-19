@@ -23,7 +23,7 @@ The topics command replaces the topic list. Review and preserve any additional r
 
 Open [repository settings](https://github.com/mauringo/bosch-sensortec-ros2-unoq/settings), then **Social preview → Edit → Upload an image**.
 
-The existing [prototype JPEG](images/uno-q-bmi088-project-preview.jpg) is an available option: 1368 × 1506 pixels, 495,097 bytes. It fits GitHub's file-size limit but is portrait, so inspect the preview for cropping. The AI-enhanced PNG in the README is over 2 MB and exceeds that limit. For a later purpose-made landscape card, GitHub recommends 1280 × 640 pixels and a file under 1 MB. See [GitHub's social preview requirements](https://docs.github.com/en/repositories/managing-your-repositorys-settings-and-features/customizing-your-repository/customizing-your-repositorys-social-media-preview).
+The existing [prototype JPEG](images/uno-q-bmi088-project-preview.jpg) is an available option: 1368 × 1506 pixels, 495,097 bytes. It fits GitHub's file-size limit but is portrait, so inspect the preview for cropping. The current 4:3 [README cover](images/uno-q-bmi088-cover.png) is over 2 MB and exceeds that limit; it needs a smaller export before use as a GitHub social preview. For a later purpose-made landscape card, GitHub recommends 1280 × 640 pixels and a file under 1 MB. See [GitHub's social preview requirements](https://docs.github.com/en/repositories/managing-your-repositorys-settings-and-features/customizing-your-repository/customizing-your-repositorys-social-media-preview).
 
 For announcement posts, pair a real hardware photo with the unaltered ROS output. Keep the README's AI-enhanced illustrations labeled if you use them. No click-through percentage is claimed.
 

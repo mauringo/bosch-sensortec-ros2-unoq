@@ -1,6 +1,6 @@
 # Technical guide: BMI088, RouterBridge and ROS 2 Jazzy
 
-[Back to the project overview](../README.md)
+[Back to the project overview](../README.md) · [Hardware and wiring](hardware.md) · [Contributing](../CONTRIBUTING.md)
 
 The STM32 reads the BMI088 over Qwiic (`Wire1`). The App Lab Python console prints its measurements, while the ROS Brick publishes them and runs a listener in parallel. The built-in matrix shows rounded sensor temperature, for example `25C`.
 
