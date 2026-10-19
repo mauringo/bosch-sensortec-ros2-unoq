@@ -1,4 +1,4 @@
-# From Motion to ROS 2: BMI088 Meets Arduino UNO Q
+# Bosch Sensortec BMI088 on Arduino UNO Q with ROS 2 Jazzy
 
 **Bring high-quality sensing to Arduino UNO Q with Bosch Sensortec sensors—starting with BMI088 motion and temperature data in ROS 2 Jazzy.**
 
@@ -7,6 +7,20 @@
 </p>
 
 *AI-generated cover based on hardware references. The Grove module, wiring colors, screen data and Arduino LED symbol are illustrative. The tested build uses a shuttle board and adapter; the sketch displays temperature. Use the [wiring guide](docs/hardware.md), not the cover, to connect your hardware.*
+
+```mermaid
+flowchart LR
+    Sensor["BMI088"] -->|"I²C / Wire1"| MCU["UNO Q microcontroller"]
+    MCU -->|"RouterBridge / MessagePack"| ROS["ROS 2 Jazzy Brick"]
+    MCU --> Console["Python console"]
+    MCU --> Matrix["LED matrix: temperature"]
+    ROS --> IMU["/imu/data_raw"]
+    ROS --> Temp["/imu/temperature"]
+    IMU --> Listener["ROS listener"]
+    Temp --> Listener
+```
+
+The microcontroller reads the BMI088 over I²C. RouterBridge carries the measurements to the ROS 2 Brick, while the Python console, LED matrix and ROS listener make the data visible.
 
 [Get started](#run-it-in-arduino-app-lab) · [Wiring](docs/hardware.md) · [Technical guide](docs/technical-guide.md) · [Roadmap](docs/roadmap.md) · [Report an issue](https://github.com/mauringo/bosch-sensortec-ros2-unoq/issues)
 
