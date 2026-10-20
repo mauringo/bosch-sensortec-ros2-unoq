@@ -1,12 +1,12 @@
 # Bosch Sensortec BMI088 on Arduino UNO Q with ROS 2 Jazzy
 
-**Bring high-quality sensing to Arduino UNO Q with Bosch Sensortec sensors—starting with BMI088 motion and temperature data in ROS 2 Jazzy.**
+A working BMI088 example for Arduino UNO Q: read motion and temperature data, pass it through RouterBridge, and publish it in ROS 2 Jazzy.
 
 <p align="center">
   <img src="docs/images/uno-q-bmi088-cover.png" width="960" alt="Illustrated Arduino UNO Q in a red tray connected to a blue Grove BMI088 module, with sensor data on a monitor behind it">
 </p>
 
-*AI-generated cover based on hardware references. The Grove module, wiring colors, screen data and Arduino LED symbol are illustrative. The tested build uses a shuttle board and adapter; the sketch displays temperature. Use the [wiring guide](docs/hardware.md), not the cover, to connect your hardware.*
+*UNO Q and BMI088 project illustration. [Image notes](docs/images/README.md#current-cover) · [Actual hardware and wiring](docs/hardware.md)*
 
 ```mermaid
 flowchart LR
@@ -20,15 +20,15 @@ flowchart LR
     Temp --> Listener
 ```
 
-The microcontroller reads the BMI088 over I²C. RouterBridge carries the measurements to the ROS 2 Brick, while the Python console, LED matrix and ROS listener make the data visible.
+The microcontroller reads the sensor. RouterBridge passes the measurements to ROS 2; the console, matrix and listener show the results.
 
 [Get started](#run-it-in-arduino-app-lab) · [Wiring](docs/hardware.md) · [Technical guide](docs/technical-guide.md) · [Roadmap](docs/roadmap.md) · [Report an issue](https://github.com/mauringo/bosch-sensortec-ros2-unoq/issues)
 
-This personal project connects a **Bosch Sensortec BMI088** to the UNO Q's microcontroller over I²C. **RouterBridge** carries the measurements to Linux, where a custom **Arduino App Lab Brick** publishes standard ROS 2 Jazzy messages. A Python console, LED matrix and automatic ROS listener help you see the whole path working.
+I built this to make Bosch Sensortec sensors easier to use with Arduino UNO Q and ROS 2. BMI088 is the first working integration. The app includes a sensor sketch, a Python console and a custom ROS 2 Jazzy Brick for Arduino App Lab.
 
 > **Independent personal project:** Not affiliated with, sponsored by, endorsed by or an official project of Arduino or Bosch Sensortec. Product names identify the hardware used.
 
-## What you get
+## Features
 
 | Feature | What to expect |
 | --- | --- |
@@ -133,11 +133,11 @@ constexpr ImuSettings IMU = {100, 6, 500, Filter::NORMAL};
 
 Start with the defaults and watch the listener's **received** rate. Raising the target does not guarantee higher throughput. See [configuration details](docs/technical-guide.md#tune-everything-with-one-sketch-line) for hardware rates, filtering and limitations.
 
-## What the working result looks like
+## Results
 
 ![Actual ROS listener output showing about 65–68 Hz received against a 100 Hz target](docs/images/ros2-bmi088-listener-results.png)
 
-*Actual supplied output, separate from the generated cover: roughly 65–68 Hz IMU delivery and sensor temperature around 27 °C. Bridge timing warnings are retained.*
+*Recorded on my setup: approximately 65–68 Hz received with a 100 Hz target, and sensor temperature around 27 °C. The timing warnings are included.*
 
 | Listener field | Meaning |
 | --- | --- |
@@ -146,19 +146,7 @@ Start with the defaults and watch the listener's **received** rate. Raising the 
 | Age | Time since the last ROS temperature message arrived; the sensor cache can already be up to two seconds old |
 | Received IMU Hz | Messages received by this subscriber, rather than the requested or advertised sensor rate |
 
-## How it fits together
-
-```mermaid
-flowchart LR
-    Sensor["BMI088"] -->|"I²C / Wire1"| MCU["UNO Q microcontroller"]
-    MCU -->|"RouterBridge / MessagePack"| ROS["ROS 2 Jazzy Brick"]
-    MCU --> Console["Python console"]
-    MCU --> Matrix["LED matrix: temperature"]
-    ROS --> IMU["/imu/data_raw"]
-    ROS --> Temp["/imu/temperature"]
-    IMU --> Listener["ROS listener"]
-    Temp --> Listener
-```
+## ROS topics
 
 | Topic | Standard ROS message | Rate |
 | --- | --- | --- |
@@ -167,7 +155,7 @@ flowchart LR
 
 The project uses RouterBridge, with no micro-ROS client or agent. Orientation is marked unavailable. Timestamps use Linux receipt time, not sensor acquisition time; covariances and calibration limitations are explained in the [technical guide](docs/technical-guide.md#data-flow).
 
-## Need a hand?
+## Troubleshooting
 
 | Symptom | Start here |
 | --- | --- |
@@ -188,7 +176,7 @@ docker compose -f .cache/app-compose.yaml up -d --build --force-recreate ros2
 
 Ordinary Brick Python edits reload from mounted source once that setup is installed. Changes to mounts or startup settings need Stop + Deploy/Run; Dockerfile/dependency changes need an image rebuild. [Full deployment details](docs/technical-guide.md#fixing-the-stale-container-after-deploy).
 
-## Explore, contribute and build on it
+## Documentation and contributions
 
 | You want to… | Go to |
 | --- | --- |
